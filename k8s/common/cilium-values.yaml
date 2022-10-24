@@ -20,6 +20,9 @@ hubble:
 externalWorkloads:
   enabled: true
 
+extraConfig:
+  enable-envoy-config: "true"
+
 # encryption:
 #   enabled: true
 #   type: wireguard
@@ -43,6 +46,10 @@ externalWorkloads:
 
 # nodeinit:
 #   enabled: true
+
+socketLB:
+  enabled: true
+  hostNamespaceOnly: true
 
 ingressController:
   enabled: true

@@ -4,6 +4,7 @@ CONTEXT=kind-$(CLUSTER_NAME)
 KIND_VER:=0.16.0
 METALLB_VER:=0.13.5
 CILIUM_VER:=1.12.3
+ISTIO_VERSION:=1.15.2
 # https://github.com/cilium/cilium-cli/commit/1c7c537aa2cb533f45d3e5917a53b27025c511c1
 CILIUM_CLI_VER:=0.12.5
 INGRESS_NGINX_CHART_VER:=4.3.0
@@ -36,7 +37,8 @@ tmp:
 	@mkdir -p $(TMP_DIR)
 
 pull-helm-charts: # pull charts to $(TMP_DIR)
-	helm pull cilium/cilium --untar --destination $(TMP_DIR) --version $(CILIUM_VER)
+	helm pull cilium/cilium --untar --destination $(TMP_DIR) --version $(CILIUM_VER) || true
+	helm pull banzaicloud-stable/istio-operator --untar --destination $(TMP_DIR) --version $(ISTIO_OPERATOR_CHART_VER) || true
 
 # init section =================================================================
 
@@ -54,6 +56,9 @@ init-helm: ## add helm repos and update
 	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 	helm repo add jetstack https://charts.jetstack.io
 	helm repo update
+
+init-istio: tmp
+	cd $(TMP_DIR) && curl -L https://istio.io/downloadIstio | ISTIO_VERSION=${ISTIO_VERSION} TARGET_ARCH=x86_64 sh -
 
 init-sysctl: ## add some sysctl params (solves problem "too many opened files")
 	sudo sysctl fs.inotify.max_user_instances=512
@@ -112,6 +117,14 @@ install-certmanager: cluster-context ## install cert-manager for $(CLUSTER_NAME)
 	 --version v$(CERTMANAGER_VER) \
 	 --create-namespace \
    --namespace cert-manager-system \
+	 --set installCRDs=true
+
+# https://cert-manager.io/docs/installation/helm/#steps
+install-istio: init-istio cluster-context ## install cert-manager for $(CLUSTER_NAME)
+	$(call msg_green,Install istio to $(CLUSTER_NAME))
+	@helm upgrade --install istio-operator .$(TMP_DIR)/istio-$(ISTIO_VERSION)/manifests/charts/istio-operator \
+	 --create-namespace \
+   --namespace istio-system \
 	 --set installCRDs=true
 
 install: cluster install-cilium install-metallb install-ingress ## install all for $(CLUSTER_NAME)
