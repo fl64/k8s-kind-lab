@@ -58,6 +58,12 @@ init-helm: ## add helm repos and update
 	@helm repo add jetstack https://charts.jetstack.io
 	@helm repo update
 
+
+ISTIO_AMBIENT_VER=191fe680b52c1754ee72a06b3e0d3f9d116f2e82
+
+init-istio-ambient: tmp
+	curl -L "https://storage.googleapis.com/istio-build/dev/0.0.0-ambient.${ISTIO_AMBIENT_VER}/istio-0.0.0-ambient.${ISTIO_AMBIENT_VER}-linux-amd64.tar.gz" | tar -xz -C "${TMP_DIR}"
+
 init-istio: tmp
 	@$(call msg_green,Download istio $(ISTIO_VERSION) binary and manifests)
 	@cd $(TMP_DIR) && curl -Lsq https://istio.io/downloadIstio | ISTIO_VERSION=$(ISTIO_VERSION) TARGET_ARCH=x86_64 sh -
@@ -124,13 +130,27 @@ install-certmanager: cluster-context ## install cert-manager for $(CLUSTER_NAME)
    --namespace cert-manager-system \
 	 --set installCRDs=true
 
-# https://cert-manager.io/docs/installation/helm/#steps
 install-istio: init-istio cluster-context ## install cert-manager for $(CLUSTER_NAME)
 	$(call msg_green,Install istio to $(CLUSTER_NAME))
-	@helm upgrade --install istio-operator .$(TMP_DIR)/istio-$(ISTIO_VERSION)/manifests/charts/istio-operator \
+	@helm upgrade --install istio-operator $(TMP_DIR)/istio-$(ISTIO_VERSION)/manifests/charts/istio-operator \
 	 --create-namespace \
    --namespace istio-system \
 	 --set installCRDs=true
+
+install-istio-ambient: init-istio-ambient cluster-context ## install cert-manager for $(CLUSTER_NAME)
+	$(call msg_green,Install istio with ambient profile to $(CLUSTER_NAME))
+	@helm upgrade --install istio-operator $(TMP_DIR)/istio-0.0.0-ambient.$(ISTIO_AMBIENT_VER)/manifests/charts/istio-operator \
+	 --create-namespace \
+   --namespace istio-system \
+	 --set installCRDs=true
+
+install-istio-ambient-iop: install-istio-ambient
+	kubectl apply -f k8s/$(CLUSTER_NAME)/istio-operator-ambient.yaml
+
+unstall-istio-ambient: cluster-context ## install cert-manager for $(CLUSTER_NAME)
+	$(call msg_green,Uninstall istio with ambient profile from $(CLUSTER_NAME))
+	@helm uninstall -n istio-system istio-operator
+
 
 install: cluster install-cilium install-metallb install-ingress ## install all for $(CLUSTER_NAME)
 
@@ -183,3 +203,9 @@ install-test-app:
 
 delete-test-app:
 	kubectl --context $(CONTEXT) delete -k test/cilium/overlays/$(CLUSTER_NAME) --force --grace-period=0
+
+install-ambient-app:
+	kubectl --context $(CONTEXT) apply -k test/ambient/overlays/$(CLUSTER_NAME)
+
+delete-tesambientt-app:
+	kubectl --context $(CONTEXT) delete -k test/ambient/overlays/$(CLUSTER_NAME) --force --grace-period=0

@@ -1,0 +1,24 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: echo
+spec:
+  hosts:
+  - echo.echo-istio.svc.cluster.local
+  http:
+  - headers:
+      request:
+        set:
+          name: zhopa
+    match:
+    - headers:
+        x-v2-header:
+          exact: v2
+    route:
+    - destination:
+        host: echo
+        subset: version-v2
+  - route:
+    - destination:
+        host: echo
+        subset: version-v1
