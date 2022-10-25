@@ -30,6 +30,7 @@ msg_green = @echo "$(bold)$(green)$(1)$(sgr0)"
 
 .PHONY: help
 # https://www.padok.fr/en/blog/beautiful-makefile-awk
+
 help: ## display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
@@ -38,36 +39,38 @@ tmp:
 
 pull-helm-charts: # pull charts to $(TMP_DIR)
 	helm pull cilium/cilium --untar --destination $(TMP_DIR) --version $(CILIUM_VER) || true
-	helm pull banzaicloud-stable/istio-operator --untar --destination $(TMP_DIR) --version $(ISTIO_OPERATOR_CHART_VER) || true
 
 # init section =================================================================
 
-init-hubble:
-	$(eval HUBBLE_VERSION=$(shell curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt))
-	echo $(HUBBLE_VERSION)
-	sudo bash -c "curl -L https://github.com/cilium/hubble/releases/download/$(HUBBLE_VERSION)/hubble-linux-amd64.tar.gz | tar -xz -C /usr/local/bin/"
+init-hubble: ## install hubble binary
+	@$(eval HUBBLE_VERSION=$(shell curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt))
+	@$(call msg_green,Install hubble $(HUBBLE_VERSION))
+	sudo bash -c "curl -Lsq https://github.com/cilium/hubble/releases/download/$(HUBBLE_VERSION)/hubble-linux-amd64.tar.gz | tar -xz -C /usr/local/bin/"
 
-
-init-cilium: ## install cilium binary
-	sudo bash -c "curl -L https://github.com/cilium/cilium-cli/releases/download/v$(CILIUM_CLI_VER)/cilium-linux-amd64.tar.gz | tar -xz -C /usr/local/bin/"
+init-cilium-cli: ## install cilium binary
+	@$(call msg_green,Install cilium-cli $(CILIUM_CLI_VER))
+	sudo bash -c "curl -Lsq https://github.com/cilium/cilium-cli/releases/download/v$(CILIUM_CLI_VER)/cilium-linux-amd64.tar.gz | tar -xz -C /usr/local/bin/"
 
 init-helm: ## add helm repos and update
-	helm repo add cilium https://helm.cilium.io/
-	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-	helm repo add jetstack https://charts.jetstack.io
-	helm repo update
+	@$(call msg_green,Add helm repos and update)
+	@helm repo add cilium https://helm.cilium.io/
+	@helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+	@helm repo add jetstack https://charts.jetstack.io
+	@helm repo update
 
 init-istio: tmp
-	cd $(TMP_DIR) && curl -L https://istio.io/downloadIstio | ISTIO_VERSION=${ISTIO_VERSION} TARGET_ARCH=x86_64 sh -
+	@$(call msg_green,Download istio $(ISTIO_VERSION) binary and manifests)
+	@cd $(TMP_DIR) && curl -Lsq https://istio.io/downloadIstio | ISTIO_VERSION=$(ISTIO_VERSION) TARGET_ARCH=x86_64 sh -
 
 init-sysctl: ## add some sysctl params (solves problem "too many opened files")
 	sudo sysctl fs.inotify.max_user_instances=512
 	sudo sysctl fs.inotify.max_user_watches=2097152
 
 init-kind: ## install kind binary
-	curl -Lo ./kind https://kind.sigs.k8s.io/dl/v$(KIND_VER)/kind-linux-amd64
-	chmod +x ./kind
-	sudo mv ./kind /usr/local/bin/kind
+	@$(call msg_green,Install Kind $(KIND_VER))
+	@curl -Lsqo ./kind https://kind.sigs.k8s.io/dl/v$(KIND_VER)/kind-linux-amd64
+	@chmod +x ./kind
+	@sudo mv ./kind /usr/local/bin/kind
 
 init: init-helm init-sysctl init-kind init-cilium init-hubble ## init all
 
@@ -79,6 +82,8 @@ cluster: ## create cluster $(CLUSTER_NAME) with kind
 
 cluster-context:
 	@kubectl config use-context $(CONTEXT) > /dev/null
+
+# install system apps
 
 install-cilium: cluster-context ## pull cilium images and install cilium chart for $(CLUSTER_NAME)
 	$(call msg_green,Install cilium v$(CILIUM_VER) to $(CLUSTER_NAME))
@@ -144,6 +149,8 @@ hosts: cluster-context ## show records for /etc/hosts file
 	@$(call msg_red,"## add this lines to /etc/hosts")
 	@echo hubble.$(CLUSTER_NAME).com $(INGRESS_IP)
 
+# cilium
+
 cilium-status:
 	cilium --context $(CONTEXT) -n cilium-system status
 	cilium --context $(CONTEXT) -n cilium-system clustermesh status
@@ -164,10 +171,12 @@ cilium-client-certs:
 	#kubectl -n cilium-system get secret clustermesh-apiserver-client-cert -o json | jq '.data| ."tls.key" | @base64d'
 	kubectl -n cilium-system get secret clustermesh-apiserver-client-cert -o json | jq '.data|=map(.|=@base64d)|.data'
 
-# test section =================================================================
+# hubble =======================================================================
 
 hubble-port-forward:
 	cilium --context $(CONTEXT) -n cilium-system hubble port-forward&
+
+# test app =====================================================================
 
 install-test-app:
 	kubectl --context $(CONTEXT) apply -k test/cilium/overlays/$(CLUSTER_NAME)
