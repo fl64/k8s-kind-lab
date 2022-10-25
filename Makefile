@@ -101,7 +101,8 @@ install-metallb: cluster-context ## install metallb for $(CLUSTER_NAME)
 	$(call msg_green,Install metallb to $(CLUSTER_NAME))
 	@kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v$(METALLB_VER)/config/manifests/metallb-native.yaml
 	@kubectl wait pod -n metallb-system --for=condition=ready --timeout=10m -l app=metallb
-	@docker network inspect -f '{{.IPAM.Config}}' kind
+	@echo Kind subnet
+	@docker network inspect kind | jq .[0].IPAM.Config[0].Subnet -r
 	@kubectl apply -f k8s/$(CLUSTER_NAME)/metallb.yaml
 
 install-ingress: cluster-context ## install ingress-nginx for $(CLUSTER_NAME)
