@@ -12,7 +12,7 @@ spec:
           name: zhopa
     match:
     - headers:
-        x-v2-header:
+        x-v2:
           exact: v2
     route:
     - destination:

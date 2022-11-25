@@ -1,0 +1,490 @@
+{
+ "version": "48cbb2f88edca93ba80d1135dbb067a827b8adc2/1.21.5/Distribution/RELEASE/BoringSSL",
+ "state": "LIVE",
+ "hot_restart_version": "11.104",
+ "command_line_options": {
+  "base_id": "0",
+  "use_dynamic_base_id": false,
+  "base_id_path": "",
+  "concurrency": 8,
+  "config_path": "/var/run/cilium/bootstrap.pb",
+  "config_yaml": "",
+  "allow_unknown_static_fields": false,
+  "reject_unknown_dynamic_fields": false,
+  "ignore_unknown_dynamic_fields": false,
+  "admin_address_path": "",
+  "local_address_ip_version": "v4",
+  "log_level": "info",
+  "component_log_level": "",
+  "log_format": "%t|%l|%n|%v",
+  "log_format_escaped": false,
+  "log_path": "",
+  "service_cluster": "",
+  "service_node": "",
+  "service_zone": "",
+  "drain_strategy": "Gradual",
+  "mode": "Serve",
+  "disable_hot_restart": false,
+  "enable_mutex_tracing": false,
+  "restart_epoch": 0,
+  "cpuset_threads": false,
+  "disabled_extensions": [],
+  "enable_fine_grain_logging": false,
+  "socket_path": "@envoy_domain_socket",
+  "socket_mode": 0,
+  "enable_core_dump": false,
+  "stats_tag": [],
+  "file_flush_interval": "10s",
+  "drain_time": "600s",
+  "parent_shutdown_time": "900s"
+ },
+ "node": {
+  "id": "host~127.0.0.1~no-id~localdomain",
+  "cluster": "ingress-cluster",
+  "dynamic_parameters": {},
+  "user_agent_name": "envoy",
+  "user_agent_build_version": {
+   "version": {
+    "major_number": 1,
+    "minor_number": 21,
+    "patch": 5
+   },
+   "metadata": {
+    "revision.sha": "48cbb2f88edca93ba80d1135dbb067a827b8adc2",
+    "ssl.version": "BoringSSL",
+    "build.type": "RELEASE",
+    "revision.status": "Distribution"
+   }
+  },
+  "extensions": [
+   {
+    "name": "envoy.request_id.uuid",
+    "category": "envoy.request_id",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.extensions.network.socket_interface.default_socket_interface",
+    "category": "envoy.bootstrap",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "cilium.tls_wrapper",
+    "category": "envoy.transport_sockets.downstream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.transport_sockets.quic",
+    "category": "envoy.transport_sockets.downstream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.transport_sockets.raw_buffer",
+    "category": "envoy.transport_sockets.downstream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.transport_sockets.tls",
+    "category": "envoy.transport_sockets.downstream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "raw_buffer",
+    "category": "envoy.transport_sockets.downstream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "tls",
+    "category": "envoy.transport_sockets.downstream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.http.original_ip_detection.xff",
+    "category": "envoy.http.original_ip_detection",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.tls.cert_validator.default",
+    "category": "envoy.tls.cert_validator",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.quic.proof_source.filter_chain",
+    "category": "envoy.quic.proof_source",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.network.dns_resolver.cares",
+    "category": "envoy.network.dns_resolver",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "cilium.network",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.ext_authz",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.network.connection_limit",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.network.ext_authz",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.network.http_connection_manager",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.network.local_ratelimit",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.network.mongo_proxy",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.network.mysql_proxy",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.network.ratelimit",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.network.sni_cluster",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.network.sni_dynamic_forward_proxy",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.network.tcp_proxy",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.http_connection_manager",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.mongo_proxy",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.ratelimit",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.tcp_proxy",
+    "category": "envoy.filters.network",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.ip",
+    "category": "envoy.resolvers",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "cilium.l7policy",
+    "category": "envoy.filters.http",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.ext_authz",
+    "category": "envoy.filters.http",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.http.dynamic_forward_proxy",
+    "category": "envoy.filters.http",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.http.ext_authz",
+    "category": "envoy.filters.http",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.http.local_ratelimit",
+    "category": "envoy.filters.http",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.http.ratelimit",
+    "category": "envoy.filters.http",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.http.router",
+    "category": "envoy.filters.http",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.http.set_metadata",
+    "category": "envoy.filters.http",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.local_rate_limit",
+    "category": "envoy.filters.http",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.rate_limit",
+    "category": "envoy.filters.http",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.router",
+    "category": "envoy.filters.http",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "match-wrapper",
+    "category": "envoy.filters.http",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.grpc_credentials.default",
+    "category": "envoy.grpc_credentials",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "request-headers",
+    "category": "envoy.matching.http.input",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "request-trailers",
+    "category": "envoy.matching.http.input",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "response-headers",
+    "category": "envoy.matching.http.input",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "response-trailers",
+    "category": "envoy.matching.http.input",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.cluster.eds",
+    "category": "envoy.clusters",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.cluster.logical_dns",
+    "category": "envoy.clusters",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.cluster.original_dst",
+    "category": "envoy.clusters",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.cluster.static",
+    "category": "envoy.clusters",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.cluster.strict_dns",
+    "category": "envoy.clusters",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.clusters.dynamic_forward_proxy",
+    "category": "envoy.clusters",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "cilium.bpf_metadata",
+    "category": "envoy.filters.listener",
+    "type_descriptor": "",
+    "version": {
+     "version": {
+      "major_number": 1,
+      "minor_number": 1,
+      "patch": 0
+     },
+     "metadata": {
+      "": ""
+     }
+    },
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.listener.tls_inspector",
+    "category": "envoy.filters.listener",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.listener.tls_inspector",
+    "category": "envoy.filters.listener",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "skip",
+    "category": "envoy.matching.action",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.extensions.upstreams.http.v3.HttpProtocolOptions",
+    "category": "envoy.upstream_options",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.upstreams.http.http_protocol_options",
+    "category": "envoy.upstream_options",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.metrics_service",
+    "category": "envoy.stats_sinks",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.stat_sinks.metrics_service",
+    "category": "envoy.stats_sinks",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.quic.crypto_stream.server.quiche",
+    "category": "envoy.quic.server.crypto_stream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "cilium.tls_wrapper",
+    "category": "envoy.transport_sockets.upstream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.transport_sockets.quic",
+    "category": "envoy.transport_sockets.upstream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.transport_sockets.raw_buffer",
+    "category": "envoy.transport_sockets.upstream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.transport_sockets.tls",
+    "category": "envoy.transport_sockets.upstream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "raw_buffer",
+    "category": "envoy.transport_sockets.upstream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "tls",
+    "category": "envoy.transport_sockets.upstream",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.filters.connection_pools.tcp.generic",
+    "category": "envoy.upstreams",
+    "type_descriptor": "",
+    "disabled": false
+   },
+   {
+    "name": "envoy.watchdog.abort_action",
+    "category": "envoy.guarddog_actions",
+    "type_descriptor": "",
+    "disabled": false
+   }
+  ],
+  "client_features": [],
+  "listening_addresses": []
+ },
+ "uptime_current_epoch": "1422s",
+ "uptime_all_epochs": "1422s"
+}

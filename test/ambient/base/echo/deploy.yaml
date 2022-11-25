@@ -18,8 +18,8 @@ spec:
     spec:
       serviceAccountName: echo
       containers:
-      - image: docker.io/fl64/echo-http
-        imagePullPolicy: IfNotPresent
+      - image: docker.io/fl64/echo
+        imagePullPolicy: Always
         name: echo
         ports:
         - containerPort: 8000

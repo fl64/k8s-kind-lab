@@ -1,8 +1,8 @@
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: echo-v2
+# ---
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: echo-v2
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -55,6 +55,6 @@ spec:
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
-      serviceAccount: echo-v2
-      serviceAccountName: echo-v2
+      serviceAccount: echo
+      serviceAccountName: echo
       terminationGracePeriodSeconds: 30

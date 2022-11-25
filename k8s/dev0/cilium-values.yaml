@@ -7,3 +7,6 @@ hubble:
     ingress:
       hosts:
         - hubble.dev0.com
+
+clustermesh:
+  useAPIServer: false

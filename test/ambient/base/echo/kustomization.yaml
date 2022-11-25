@@ -7,11 +7,13 @@ namespace: echo-istio
 resources:
   - ./ns.yaml
   - ./deploy.yaml
+  - ./echo-v2.yaml
   - ./sa.yaml
   - ./svc.yaml
   - ./dr.yaml
   - ./vs.yaml
-  - ./echo-v2.yaml
+  - ./gw.yaml
+  # - ./ap.yaml
 
 
 replicas:

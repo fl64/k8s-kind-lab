@@ -15,6 +15,7 @@ spec:
         app: prober
     spec:
       serviceAccountName: prober
+      terminationGracePeriodSeconds: 3
       restartPolicy: Always
       containers:
         - name: prober

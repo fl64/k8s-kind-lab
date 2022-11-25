@@ -4,4 +4,4 @@ metadata:
   namespace: istio-system
   name: iop-ambient
 spec:
-  profile: ambient
+  profile: default

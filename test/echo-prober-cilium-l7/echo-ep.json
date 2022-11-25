@@ -1,0 +1,416 @@
+kubectl -n cilium-system exec cilium-gls29 -c cilium-agent -it -- cilium endpoint get 2298
+[
+  {
+    "id": 2298,
+    "spec": {
+      "label-configuration": {},
+      "options": {
+        "ConntrackAccounting": "Enabled",
+        "ConntrackLocal": "Disabled",
+        "Debug": "Disabled",
+        "DebugLB": "Disabled",
+        "DebugPolicy": "Enabled",
+        "DropNotification": "Enabled",
+        "MonitorAggregationLevel": "Medium",
+        "PolicyAuditMode": "Disabled",
+        "PolicyVerdictNotification": "Enabled",
+        "TraceNotification": "Enabled"
+      }
+    },
+    "status": {
+      "controllers": [
+        {
+          "configuration": {
+            "error-retry": true,
+            "error-retry-base": "2s"
+          },
+          "name": "endpoint-2298-regeneration-recovery",
+          "status": {
+            "last-failure-timestamp": "0001-01-01T00:00:00.000Z",
+            "last-success-timestamp": "0001-01-01T00:00:00.000Z"
+          },
+          "uuid": "bc38a779-90e7-4f0f-8740-4c1b671e754d"
+        },
+        {
+          "configuration": {
+            "error-retry": true,
+            "interval": "5m0s"
+          },
+          "name": "resolve-identity-2298",
+          "status": {
+            "last-failure-timestamp": "0001-01-01T00:00:00.000Z",
+            "last-success-timestamp": "2022-11-15T08:22:27.663Z",
+            "success-count": 7
+          },
+          "uuid": "f87cf3b5-ea12-4550-9ddc-ba7ec0e2e86f"
+        },
+        {
+          "configuration": {
+            "error-retry": true,
+            "interval": "1m0s"
+          },
+          "name": "sync-policymap-2298",
+          "status": {
+            "last-failure-timestamp": "0001-01-01T00:00:00.000Z",
+            "last-success-timestamp": "2022-11-15T08:25:29.643Z",
+            "success-count": 36
+          },
+          "uuid": "d1cf55af-a39d-4974-a346-914701329724"
+        },
+        {
+          "configuration": {
+            "error-retry": true,
+            "interval": "10s"
+          },
+          "name": "sync-to-k8s-ciliumendpoint (2298)",
+          "status": {
+            "last-failure-timestamp": "0001-01-01T00:00:00.000Z",
+            "last-success-timestamp": "2022-11-15T08:25:47.811Z",
+            "success-count": 202
+          },
+          "uuid": "534a743b-9947-438f-aeff-ae96f8d720e6"
+        }
+      ],
+      "external-identifiers": {
+        "container-id": "23fe1b9966eea502a7098297a9d84bab1b29fbd0b93910597b436af4fb455f4b",
+        "k8s-namespace": "echo-cilium",
+        "k8s-pod-name": "echo-6966f96dc6-lvg9k",
+        "pod-name": "echo-cilium/echo-6966f96dc6-lvg9k"
+      },
+      "health": {
+        "bpf": "OK",
+        "connected": true,
+        "overallHealth": "OK",
+        "policy": "OK"
+      },
+      "identity": {
+        "id": 81283,
+        "labels": [
+          "k8s:io.cilium.k8s.policy.cluster=dev0",
+          "k8s:version=v1",
+          "k8s:app=echo",
+          "k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name=echo-cilium",
+          "k8s:io.kubernetes.pod.namespace=echo-cilium",
+          "k8s:io.cilium.k8s.policy.serviceaccount=echo"
+        ]
+      },
+      "labels": {
+        "derived": [
+          "k8s:pod-template-hash=6966f96dc6"
+        ],
+        "realized": {},
+        "security-relevant": [
+          "k8s:app=echo",
+          "k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name=echo-cilium",
+          "k8s:io.cilium.k8s.policy.cluster=dev0",
+          "k8s:io.cilium.k8s.policy.serviceaccount=echo",
+          "k8s:io.kubernetes.pod.namespace=echo-cilium",
+          "k8s:version=v1"
+        ]
+      },
+      "log": [
+        {
+          "code": "OK",
+          "message": "Successfully regenerated endpoint program (Reason: )",
+          "state": "ready",
+          "timestamp": "2022-11-15T07:52:29Z"
+        }
+      ],
+      "namedPorts": [
+        {
+          "name": "http",
+          "port": 8000,
+          "protocol": "TCP"
+        },
+        {
+          "name": "https",
+          "port": 8443,
+          "protocol": "TCP"
+        },
+        {
+          "name": "tcp",
+          "port": 1234,
+          "protocol": "TCP"
+        }
+      ],
+      "networking": {
+        "addressing": [
+          {
+            "ipv4": "10.1.1.143"
+          }
+        ],
+        "host-mac": "72:bc:81:41:64:11",
+        "interface-index": 8,
+        "interface-name": "lxcea31b989448e",
+        "mac": "ce:85:08:e8:2a:74"
+      },
+      "policy": {
+        "proxy-policy-revision": 4,
+        "proxy-statistics": [
+          {
+            "allocated-proxy-port": 17286,
+            "location": "ingress",
+            "port": 1234,
+            "protocol": "http",
+            "statistics": {
+              "requests": {},
+              "responses": {}
+            }
+          },
+          {
+            "allocated-proxy-port": 17286,
+            "location": "ingress",
+            "port": 8000,
+            "protocol": "http",
+            "statistics": {
+              "requests": {
+                "denied": 951,
+                "received": 951
+              },
+              "responses": {}
+            }
+          },
+          {
+            "allocated-proxy-port": 17286,
+            "location": "ingress",
+            "port": 8443,
+            "protocol": "http",
+            "statistics": {
+              "requests": {},
+              "responses": {}
+            }
+          }
+        ],
+        "realized": {
+          "allowed-egress-identities": [
+            0
+          ],
+          "allowed-ingress-identities": [
+            1
+          ],
+          "build": 4,
+          "denied-egress-identities": null,
+          "denied-ingress-identities": null,
+          "id": 81283,
+          "l4": {
+            "egress": [],
+            "ingress": [
+              {
+                "derived-from-rules": [
+                  [
+                    "k8s:io.cilium.k8s.policy.derived-from=CiliumNetworkPolicy",
+                    "k8s:io.cilium.k8s.policy.name=cnp-test",
+                    "k8s:io.cilium.k8s.policy.namespace=echo-cilium",
+                    "k8s:io.cilium.k8s.policy.uid=67095c92-50ee-472d-bf77-21ff1bd669d2"
+                  ]
+                ],
+                "rule": {
+		  "l7-rules": [
+		    {
+		      "\u0026LabelSelector{MatchLabels:map[string]string{reserved.host: ,},MatchExpressions:[]LabelSelectorRequirement{},}": null
+		    },
+		    {
+		      "\u0026LabelSelector{MatchLabels:map[string]string{},MatchExpressions:[]LabelSelectorRequirement{},}": {
+		        "http": [
+		          {
+		            "method": "GET",
+		            "path": "/zhopa"
+		          }
+		        ]
+		      }
+		    }
+		  ],
+		  "port": 8000,
+		  "protocol": "TCP"
+		}
+              },
+              {
+                "derived-from-rules": [
+                  [
+                    "k8s:io.cilium.k8s.policy.derived-from=CiliumNetworkPolicy",
+                    "k8s:io.cilium.k8s.policy.name=cnp-test",
+                    "k8s:io.cilium.k8s.policy.namespace=echo-cilium",
+                    "k8s:io.cilium.k8s.policy.uid=67095c92-50ee-472d-bf77-21ff1bd669d2"
+                  ]
+                ],
+                "rule": {
+		  "l7-rules": [
+		    {
+		      "\u0026LabelSelector{MatchLabels:map[string]string{reserved.host: ,},MatchExpressions:[]LabelSelectorRequirement{},}": null
+		    },
+		    {
+		      "\u0026LabelSelector{MatchLabels:map[string]string{},MatchExpressions:[]LabelSelectorRequirement{},}": {
+		        "http": [
+		          {
+		            "method": "GET",
+		            "path": "/zhopa"
+		          }
+		        ]
+		      }
+		    }
+		  ],
+		  "port": 1234,
+		  "protocol": "TCP"
+		}
+              },
+              {
+                "derived-from-rules": [
+                  [
+                    "k8s:io.cilium.k8s.policy.derived-from=CiliumNetworkPolicy",
+                    "k8s:io.cilium.k8s.policy.name=cnp-test",
+                    "k8s:io.cilium.k8s.policy.namespace=echo-cilium",
+                    "k8s:io.cilium.k8s.policy.uid=67095c92-50ee-472d-bf77-21ff1bd669d2"
+                  ]
+                ],
+                "rule": {
+		  "l7-rules": [
+		    {
+		      "\u0026LabelSelector{MatchLabels:map[string]string{reserved.host: ,},MatchExpressions:[]LabelSelectorRequirement{},}": null
+		    },
+		    {
+		      "\u0026LabelSelector{MatchLabels:map[string]string{},MatchExpressions:[]LabelSelectorRequirement{},}": {
+		        "http": [
+		          {
+		            "method": "GET",
+		            "path": "/zhopa"
+		          }
+		        ]
+		      }
+		    }
+		  ],
+		  "port": 8443,
+		  "protocol": "TCP"
+		}
+              }
+            ]
+          },
+          "policy-enabled": "ingress",
+          "policy-revision": 4
+        },
+        "spec": {
+          "allowed-egress-identities": [
+            0
+          ],
+          "allowed-ingress-identities": [
+            1
+          ],
+          "build": 4,
+          "denied-egress-identities": null,
+          "denied-ingress-identities": null,
+          "id": 81283,
+          "l4": {
+            "egress": [],
+            "ingress": [
+              {
+                "derived-from-rules": [
+                  [
+                    "k8s:io.cilium.k8s.policy.derived-from=CiliumNetworkPolicy",
+                    "k8s:io.cilium.k8s.policy.name=cnp-test",
+                    "k8s:io.cilium.k8s.policy.namespace=echo-cilium",
+                    "k8s:io.cilium.k8s.policy.uid=67095c92-50ee-472d-bf77-21ff1bd669d2"
+                  ]
+                ],
+                "rule": {
+		  "l7-rules": [
+		    {
+		      "\u0026LabelSelector{MatchLabels:map[string]string{reserved.host: ,},MatchExpressions:[]LabelSelectorRequirement{},}": null
+		    },
+		    {
+		      "\u0026LabelSelector{MatchLabels:map[string]string{},MatchExpressions:[]LabelSelectorRequirement{},}": {
+		        "http": [
+		          {
+		            "method": "GET",
+		            "path": "/zhopa"
+		          }
+		        ]
+		      }
+		    }
+		  ],
+		  "port": 8000,
+		  "protocol": "TCP"
+		}
+              },
+              {
+                "derived-from-rules": [
+                  [
+                    "k8s:io.cilium.k8s.policy.derived-from=CiliumNetworkPolicy",
+                    "k8s:io.cilium.k8s.policy.name=cnp-test",
+                    "k8s:io.cilium.k8s.policy.namespace=echo-cilium",
+                    "k8s:io.cilium.k8s.policy.uid=67095c92-50ee-472d-bf77-21ff1bd669d2"
+                  ]
+                ],
+                "rule": {
+		  "l7-rules": [
+		    {
+		      "\u0026LabelSelector{MatchLabels:map[string]string{reserved.host: ,},MatchExpressions:[]LabelSelectorRequirement{},}": null
+		    },
+		    {
+		      "\u0026LabelSelector{MatchLabels:map[string]string{},MatchExpressions:[]LabelSelectorRequirement{},}": {
+		        "http": [
+		          {
+		            "method": "GET",
+		            "path": "/zhopa"
+		          }
+		        ]
+		      }
+		    }
+		  ],
+		  "port": 1234,
+		  "protocol": "TCP"
+		}
+              },
+              {
+                "derived-from-rules": [
+                  [
+                    "k8s:io.cilium.k8s.policy.derived-from=CiliumNetworkPolicy",
+                    "k8s:io.cilium.k8s.policy.name=cnp-test",
+                    "k8s:io.cilium.k8s.policy.namespace=echo-cilium",
+                    "k8s:io.cilium.k8s.policy.uid=67095c92-50ee-472d-bf77-21ff1bd669d2"
+                  ]
+                ],
+                "rule": {
+		  "l7-rules": [
+		    {
+		      "\u0026LabelSelector{MatchLabels:map[string]string{reserved.host: ,},MatchExpressions:[]LabelSelectorRequirement{},}": null
+		    },
+		    {
+		      "\u0026LabelSelector{MatchLabels:map[string]string{},MatchExpressions:[]LabelSelectorRequirement{},}": {
+		        "http": [
+		          {
+		            "method": "GET",
+		            "path": "/zhopa"
+		          }
+		        ]
+		      }
+		    }
+		  ],
+		  "port": 8443,
+		  "protocol": "TCP"
+		}
+              }
+            ]
+          },
+          "policy-enabled": "ingress",
+          "policy-revision": 4
+        }
+      },
+      "realized": {
+        "label-configuration": {},
+        "options": {
+          "ConntrackAccounting": "Enabled",
+          "ConntrackLocal": "Disabled",
+          "Debug": "Disabled",
+          "DebugLB": "Disabled",
+          "DebugPolicy": "Enabled",
+          "DropNotification": "Enabled",
+          "MonitorAggregationLevel": "Medium",
+          "PolicyAuditMode": "Disabled",
+          "PolicyVerdictNotification": "Enabled",
+          "TraceNotification": "Enabled"
+        }
+      },
+      "state": "ready"
+    }
+  }
+]
+

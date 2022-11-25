@@ -1,0 +1,11 @@
+cluster:
+  name: dev1
+  id: 2
+
+hubble:
+  ui:
+    ingress:
+      hosts:
+        - hubble.dev1.com
+clustermesh:
+  useAPIServer: false
