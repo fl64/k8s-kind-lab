@@ -1,6 +1,9 @@
 cilium-logs:
 	stern -n cilium-system -l k8s-app=cilium --tail=0
 
+cilium-logs-err:
+	stern -n cilium-system -l k8s-app=cilium --tail=0 | grep error
+
 prober-logs:
 	stern -n prober-cilium -l app=prober --tail=0
 

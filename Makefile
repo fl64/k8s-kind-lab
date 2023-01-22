@@ -3,8 +3,11 @@ CONTEXT=kind-$(CLUSTER_NAME)
 
 KIND_VER:=0.16.0
 METALLB_VER:=0.13.5
-CILIUM_VER:=1.12.3
-ISTIO_VERSION:=1.15.3
+# CILIUM_VER:=1.11.5
+CILIUM_VER:=1.12.4
+#CILIUM_VER:=1.11.6
+
+ISTIO_VERSION:=1.16.1
 # https://github.com/cilium/cilium-cli/commit/1c7c537aa2cb533f45d3e5917a53b27025c511c1
 CILIUM_CLI_VER:=0.12.5
 INGRESS_NGINX_CHART_VER:=4.3.0
@@ -58,12 +61,6 @@ init-helm: ## add helm repos and update
 	@helm repo add jetstack https://charts.jetstack.io
 	@helm repo update
 
-
-ISTIO_AMBIENT_VER=191fe680b52c1754ee72a06b3e0d3f9d116f2e82
-
-init-istio-ambient: tmp
-	curl -L "https://storage.googleapis.com/istio-build/dev/0.0.0-ambient.${ISTIO_AMBIENT_VER}/istio-0.0.0-ambient.${ISTIO_AMBIENT_VER}-linux-amd64.tar.gz" | tar -xz -C "${TMP_DIR}"
-
 init-istio: tmp
 	@$(call msg_green,Download istio $(ISTIO_VERSION) binary and manifests)
 	@cd $(TMP_DIR) && curl -Lsq https://istio.io/downloadIstio | ISTIO_VERSION=$(ISTIO_VERSION) TARGET_ARCH=x86_64 sh -
@@ -84,7 +81,7 @@ init: init-helm init-sysctl init-kind init-cilium init-hubble ## init all
 
 cluster: ## create cluster $(CLUSTER_NAME) with kind
 	$(call msg_red,Create cluster $(CLUSTER_NAME) with k8s version v$(K8S_VER))
-	@kind create cluster --image=kindest/node:v$(K8S_VER) --name $(CLUSTER_NAME) --config k8s/$(CLUSTER_NAME)/cluster.yaml
+	@kind create cluster --image=kindest/node:v$(K8S_VER) --name $(CLUSTER_NAME) --config k8s/$(CLUSTER_NAME)/kind/cluster.yaml
 
 cluster-context:
 	@kubectl config use-context $(CONTEXT) > /dev/null
@@ -102,8 +99,8 @@ install-cilium: cluster-context pre-install-cilium ## pull cilium images and ins
 	 --version $(CILIUM_VER) \
 	 --create-namespace \
 	 --namespace cilium-system \
-	 --values k8s/common/cilium-values.yaml \
-	 --values k8s/$(CLUSTER_NAME)/cilium-values.yaml
+	 --values k8s/common/helm/cilium-values.yaml \
+	 --values k8s/$(CLUSTER_NAME)/helm/cilium-values.yaml
 	@kubectl wait pod -n cilium-system --for=condition=ready --timeout=10m -l k8s-app=cilium
 
 install-metallb: cluster-context ## install metallb for $(CLUSTER_NAME)
@@ -133,38 +130,33 @@ install-certmanager: cluster-context ## install cert-manager for $(CLUSTER_NAME)
    --namespace cert-manager-system \
 	 --set installCRDs=true
 
-install-istio: init-istio cluster-context ## install cert-manager for $(CLUSTER_NAME)
+install: cluster install-cilium install-metallb install-ingress ## install all for $(CLUSTER_NAME)
+
+# istio
+
+install-istio-operator: init-istio cluster-context ## install cert-manager for $(CLUSTER_NAME)
 	$(call msg_green,Install istio to $(CLUSTER_NAME))
 	@helm upgrade --install istio-operator $(TMP_DIR)/istio-$(ISTIO_VERSION)/manifests/charts/istio-operator \
 	 --create-namespace \
    --namespace istio-system \
 	 --set installCRDs=true
 
-install-istio-iop: install-istio
+install-istio-iop:
+	$(call msg_green,Install iop resource $(CLUSTER_NAME))
 	kubectl apply -f k8s/$(CLUSTER_NAME)/istio-operator.yaml
 
-install-istio-ambient: init-istio-ambient cluster-context ## install cert-manager for $(CLUSTER_NAME)
-	$(call msg_green,Install istio with ambient profile to $(CLUSTER_NAME))
-	@helm upgrade --install istio-operator $(TMP_DIR)/istio-0.0.0-ambient.$(ISTIO_AMBIENT_VER)/manifests/charts/istio-operator \
-	 --create-namespace \
-   --namespace istio-system \
-	 --set installCRDs=true
-
-install-istio-ambient-iop: install-istio-ambient
-	kubectl apply -f k8s/$(CLUSTER_NAME)/istio-operator-ambient.yaml
-
-install-istio-ambient-tools:
-	kubectl apply -f $(TMP_DIR)/istio-0.0.0-ambient.$(ISTIO_AMBIENT_VER)/samples/addons/prometheus.yaml
-	kubectl apply -f $(TMP_DIR)/istio-0.0.0-ambient.$(ISTIO_AMBIENT_VER)/samples/addons/kiali.yaml
-
-uninstall-istio-ambient: cluster-context ## install cert-manager for $(CLUSTER_NAME)
-	$(call msg_green,Uninstall istio with ambient profile from $(CLUSTER_NAME))
-	@helm uninstall -n istio-system istio-operator
+install-istio-tools:
+	$(call msg_green,Install istio tools to $(CLUSTER_NAME))
+	kubectl apply -f $(TMP_DIR)/istio-$(ISTIO_VERSION)/samples/addons/prometheus.yaml
+	kubectl apply -f $(TMP_DIR)/istio-$(ISTIO_VERSION)/samples/addons/kiali.yaml
+	kubectl apply -f $(TMP_DIR)/istio-$(ISTIO_VERSION)/samples/addons/jaeger.yaml
+	# kubectl apply -f $(TMP_DIR)/istio-$(ISTIO_VERSION)/samples/addons/extras/zipkin.yaml
+	kubectl apply -f k8s/$(CLUSTER_NAME)/kiali-ingress.yaml
+	kubectl apply -f k8s/$(CLUSTER_NAME)/prom-ingress.yaml
+	kubectl apply -f k8s/$(CLUSTER_NAME)/jaeger-ingress.yaml
 
 
-install: cluster install-cilium install-metallb install-ingress ## install all for $(CLUSTER_NAME)
-
-install-ambient: cluster install-istio-ambient-iop install-istio-ambient-tools
+install-istio: install-istio-operator install-istio-iop install-istio-tools
 
 # cleanup section ==============================================================
 
@@ -181,10 +173,14 @@ hosts: cluster-context ## show records for /etc/hosts file
 	@$(eval ISTIO_INGRESS_IP=$(shell kubectl get svc -n istio-system istio-ingressgateway -o json | jq .status.loadBalancer.ingress[0].ip -r))
 	@$(call msg_red,"## add this lines to for nginx ingress /etc/hosts")
 	@echo hubble.$(CLUSTER_NAME).com $(INGRESS_IP)
+	@echo kiali.$(CLUSTER_NAME).com $(INGRESS_IP)
+	@echo prom.$(CLUSTER_NAME).com $(INGRESS_IP)
+	@echo zipkin.$(CLUSTER_NAME).com $(INGRESS_IP)
 	@$(call msg_red,"## add this lines to for istio ingress gateway /etc/hosts")
 	@echo hubble.$(CLUSTER_NAME).com $(ISTIO_INGRESS_IP)
+	@echo kiali.$(CLUSTER_NAME).com $(ISTIO_INGRESS_IP)
 
-# cilium
+# cilium =======================================================================
 
 cilium-status:
 	cilium --context $(CONTEXT) -n cilium-system status
@@ -218,9 +214,3 @@ install-test-app:
 
 delete-test-app:
 	kubectl --context $(CONTEXT) delete -k test/cilium/overlays/$(CLUSTER_NAME) --force --grace-period=0
-
-install-ambient-app:
-	kubectl --context $(CONTEXT) apply -k test/ambient/overlays/$(CLUSTER_NAME)
-
-uninstall-ambient-app:
-	kubectl --context $(CONTEXT) delete -k test/ambient/overlays/$(CLUSTER_NAME) --force --grace-period=0

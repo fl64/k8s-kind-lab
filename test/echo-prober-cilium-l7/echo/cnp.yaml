@@ -17,6 +17,7 @@ spec:
         protocol: TCP
       rules:
         http:
-        - method: GET
-          path: /zhopa
-    # - ports:
+        - {}
+    #     - method: GET
+    #       path: /zhopa
+    # # - ports:

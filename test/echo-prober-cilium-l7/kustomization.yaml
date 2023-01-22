@@ -7,6 +7,6 @@ commonAnnotations:
 
 resources:
   - ./echo
-  - ./echo-2
-  - ./echo-3
+  # - ./echo-2
+  # - ./echo-3
   - ./prober
