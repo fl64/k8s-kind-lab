@@ -3,9 +3,7 @@ CONTEXT=kind-$(CLUSTER_NAME)
 
 KIND_VER:=0.16.0
 METALLB_VER:=0.13.5
-# CILIUM_VER:=1.11.5
 CILIUM_VER:=1.12.7
-#CILIUM_VER:=1.11.6
 
 ISTIO_VERSION:=1.16.1
 # https://github.com/cilium/cilium-cli/commit/1c7c537aa2cb533f45d3e5917a53b27025c511c1
@@ -88,48 +86,53 @@ cluster-context:
 
 # install system apps
 
-pre-install-cilium: cluster-context
+pre-install-cilium:
 	$(call msg_green,Pull cilium v$(CILIUM_VER) images to $(CLUSTER_NAME))
 	@docker pull quay.io/cilium/cilium:v$(CILIUM_VER)
 	@kind load docker-image quay.io/cilium/cilium:v$(CILIUM_VER) -n $(CLUSTER_NAME)
 
-install-cilium: cluster-context pre-install-cilium ## pull cilium images and install cilium chart for $(CLUSTER_NAME)
+install-cilium: pre-install-cilium ## pull cilium images and install cilium chart for $(CLUSTER_NAME)
 	$(call msg_green,Install cilium v$(CILIUM_VER) to $(CLUSTER_NAME))
-	@helm upgrade --install cilium cilium/cilium \
-	 --version $(CILIUM_VER) \
-	 --create-namespace \
-	 --namespace cilium-system \
-	 --values k8s/common/helm/cilium-values.yaml \
-	 --values k8s/$(CLUSTER_NAME)/helm/cilium-values.yaml
-	@kubectl wait pod -n cilium-system --for=condition=ready --timeout=10m -l k8s-app=cilium
+	@helm upgrade \
+		--kube-context $(CONTEXT) \
+		--install cilium cilium/cilium \
+		--version $(CILIUM_VER) \
+		--create-namespace \
+		--namespace cilium-system \
+		--values k8s/common/helm/cilium-values.yaml \
+		--values k8s/$(CLUSTER_NAME)/helm/cilium-values.yaml
+	@kubectl --context $(CONTEXT)  wait pod -n cilium-system --for=condition=ready --timeout=10m -l k8s-app=cilium
 
-install-metallb: cluster-context ## install metallb for $(CLUSTER_NAME)
+install-metallb: ## install metallb for $(CLUSTER_NAME)
 	$(call msg_green,Install metallb to $(CLUSTER_NAME))
-	@kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v$(METALLB_VER)/config/manifests/metallb-native.yaml
-	@kubectl wait pod -n metallb-system --for=condition=ready --timeout=10m -l app=metallb
-	@echo Kind subnet
-	@docker network inspect kind | jq .[0].IPAM.Config[0].Subnet -r
-	@kubectl apply -f k8s/$(CLUSTER_NAME)/metallb.yaml
+	@kubectl --context $(CONTEXT) apply -f https://raw.githubusercontent.com/metallb/metallb/v$(METALLB_VER)/config/manifests/metallb-native.yaml
+	@kubectl --context $(CONTEXT) wait pod -n metallb-system --for=condition=ready --timeout=10m -l app=metallb
+	@docker network inspect -f '{{.IPAM.Config}}' kind
+	@kubectl --context $(CONTEXT) apply -f k8s/$(CLUSTER_NAME)/metallb.yaml
 
-install-ingress: cluster-context ## install ingress-nginx for $(CLUSTER_NAME)
+install-ingress: ## install ingress-nginx for $(CLUSTER_NAME)
 	$(call msg_green,Install ingress-ngins to $(CLUSTER_NAME))
-	@helm upgrade --install nginx-ingress ingress-nginx/ingress-nginx \
-	 --version $(INGRESS_NGINX_CHART_VER) \
-	 --create-namespace \
-   --namespace ingress-nginx-system
-	@kubectl wait pod -n ingress-nginx-system --for=condition=ready --timeout=10m -l app.kubernetes.io/component=controller
+	@helm upgrade \
+		--kube-context $(CONTEXT) \
+		--install nginx-ingress ingress-nginx/ingress-nginx \
+		--version $(INGRESS_NGINX_CHART_VER) \
+		--create-namespace \
+		--namespace ingress-nginx-system
+	@kubectl --context $(CONTEXT) wait pod -n ingress-nginx-system --for=condition=ready --timeout=10m -l app.kubernetes.io/component=controller
 	@echo ingress ip:
-	@kubectl get svc -n ingress-nginx-system nginx-ingress-ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].ip -r
+	@kubectl --context $(CONTEXT) get svc -n ingress-nginx-system nginx-ingress-ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].ip -r
 
 # https://cert-manager.io/docs/installation/helm/#steps
-install-certmanager: cluster-context ## install cert-manager for $(CLUSTER_NAME)
+install-certmanager: ## install cert-manager for $(CLUSTER_NAME)
 	$(call msg_green,Install cert-manager to $(CLUSTER_NAME))
-	# kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v$(CERTMANAGER_VER)/cert-manager.crds.yaml
-	@helm upgrade --install cert-manager jetstack/cert-manager \
-	 --version v$(CERTMANAGER_VER) \
-	 --create-namespace \
-   --namespace cert-manager-system \
-	 --set installCRDs=true
+	# kubectl --context $(CONTEXT) apply -f https://github.com/cert-manager/cert-manager/releases/download/v$(CERTMANAGER_VER)/cert-manager.crds.yaml
+	@helm upgrade \
+		--kube-context $(CONTEXT) \
+		--install cert-manager jetstack/cert-manager \
+		--version v$(CERTMANAGER_VER) \
+		--create-namespace \
+		--namespace cert-manager-system \
+		--set installCRDs=true
 
 install: init-helm cluster install-cilium install-metallb install-ingress ## install all for $(CLUSTER_NAME)
 
@@ -137,24 +140,26 @@ install: init-helm cluster install-cilium install-metallb install-ingress ## ins
 
 install-istio-operator: init-istio cluster-context ## install cert-manager for $(CLUSTER_NAME)
 	$(call msg_green,Install istio to $(CLUSTER_NAME))
-	@helm upgrade --install istio-operator $(TMP_DIR)/istio-$(ISTIO_VERSION)/manifests/charts/istio-operator \
-	 --create-namespace \
-   --namespace istio-system \
-	 --set installCRDs=true
+	@helm upgrade \
+		--kube-context $(CONTEXT) \
+		--install istio-operator $(TMP_DIR)/istio-$(ISTIO_VERSION)/manifests/charts/istio-operator \
+		--create-namespace \
+		--namespace istio-system \
+		--set installCRDs=true
 
 install-istio-iop:
 	$(call msg_green,Install iop resource $(CLUSTER_NAME))
-	kubectl apply -f k8s/$(CLUSTER_NAME)/istio-operator.yaml
+	kubectl --context $(CONTEXT) \ apply -f k8s/$(CLUSTER_NAME)/istio-operator.yaml
 
 install-istio-tools:
 	$(call msg_green,Install istio tools to $(CLUSTER_NAME))
-	kubectl apply -f $(TMP_DIR)/istio-$(ISTIO_VERSION)/samples/addons/prometheus.yaml
-	kubectl apply -f $(TMP_DIR)/istio-$(ISTIO_VERSION)/samples/addons/kiali.yaml
-	kubectl apply -f $(TMP_DIR)/istio-$(ISTIO_VERSION)/samples/addons/jaeger.yaml
+	kubectl --context $(CONTEXT) apply -f $(TMP_DIR)/istio-$(ISTIO_VERSION)/samples/addons/prometheus.yaml
+	kubectl --context $(CONTEXT) apply -f $(TMP_DIR)/istio-$(ISTIO_VERSION)/samples/addons/kiali.yaml
+	kubectl --context $(CONTEXT) apply -f $(TMP_DIR)/istio-$(ISTIO_VERSION)/samples/addons/jaeger.yaml
 	# kubectl apply -f $(TMP_DIR)/istio-$(ISTIO_VERSION)/samples/addons/extras/zipkin.yaml
-	kubectl apply -f k8s/$(CLUSTER_NAME)/kiali-ingress.yaml
-	kubectl apply -f k8s/$(CLUSTER_NAME)/prom-ingress.yaml
-	kubectl apply -f k8s/$(CLUSTER_NAME)/jaeger-ingress.yaml
+	kubectl --context $(CONTEXT) apply -f k8s/$(CLUSTER_NAME)/kiali-ingress.yaml
+	kubectl --context $(CONTEXT) apply -f k8s/$(CLUSTER_NAME)/prom-ingress.yaml
+	kubectl --context $(CONTEXT) apply -f k8s/$(CLUSTER_NAME)/jaeger-ingress.yaml
 
 
 install-istio: install-istio-operator install-istio-iop install-istio-tools
@@ -170,8 +175,8 @@ cleanup: delete
 # info section =================================================================
 
 hosts: cluster-context ## show records for /etc/hosts file
-	@$(eval INGRESS_IP=$(shell 	kubectl get svc -n ingress-nginx-system nginx-ingress-ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].ip -r))
-	@$(eval ISTIO_INGRESS_IP=$(shell kubectl get svc -n istio-system istio-ingressgateway -o json | jq .status.loadBalancer.ingress[0].ip -r))
+	@$(eval INGRESS_IP=$(shell 	kubectl --context $(CONTEXT) get svc -n ingress-nginx-system nginx-ingress-ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].ip -r))
+	@$(eval ISTIO_INGRESS_IP=$(shell kubectl --context $(CONTEXT) get svc -n istio-system istio-ingressgateway -o json | jq .status.loadBalancer.ingress[0].ip -r))
 	@$(call msg_red,"## add this lines to for nginx ingress /etc/hosts")
 	@echo hubble.$(CLUSTER_NAME).com $(INGRESS_IP)
 	@echo kiali.$(CLUSTER_NAME).com $(INGRESS_IP)
@@ -189,29 +194,22 @@ cilium-status:
 
 cilium-template: tmp
 	helm template cilium cilium/cilium \
-	 --version $(CILIUM_VER) \
-	 --create-namespace \
-	 --namespace cilium-system \
-	 --values k8s/common/cilium-values.yaml \
-	 --values k8s/$(CLUSTER_NAME)/cilium-values.yaml \
-	 > $(TMP_DIR)/cilium-$(CLUSTER_NAME)-debug.yaml
+		--kube-context $(CONTEXT) \
+		--version $(CILIUM_VER) \
+		--create-namespace \
+	 	--namespace cilium-system \
+		--values k8s/common/cilium-values.yaml \
+		--values k8s/$(CLUSTER_NAME)/cilium-values.yaml \
+		> $(TMP_DIR)/cilium-$(CLUSTER_NAME)-debug.yaml
 
 cilium-connect:
 	cilium clustermesh connect --context kind-dev0 --destination-context kind-dev1 -n cilium-system
 
 cilium-client-certs:
 	#kubectl -n cilium-system get secret clustermesh-apiserver-client-cert -o json | jq '.data| ."tls.key" | @base64d'
-	kubectl -n cilium-system get secret clustermesh-apiserver-client-cert -o json | jq '.data|=map(.|=@base64d)|.data'
+	kubectl --context $(CONTEXT) -n cilium-system get secret clustermesh-apiserver-client-cert -o json | jq '.data|=map(.|=@base64d)|.data'
 
 # hubble =======================================================================
 
 hubble-port-forward:
 	cilium --context $(CONTEXT) -n cilium-system hubble port-forward&
-
-# test app =====================================================================
-
-install-test-app:
-	kubectl --context $(CONTEXT) apply -k test/cilium/overlays/$(CLUSTER_NAME)
-
-delete-test-app:
-	kubectl --context $(CONTEXT) delete -k test/cilium/overlays/$(CLUSTER_NAME) --force --grace-period=0
