@@ -54,18 +54,18 @@ socketLB:
 ingressController:
   enabled: true
 
-clustermesh:
-  useAPIServer: true
-  apiserver:
-    tls:
-      auto:
-        enabled: true
-        method: cronJob
-    service:
-      type: LoadBalancer
-  config:
-    enabled: true
-    domain: mesh.cilium.io
+# clustermesh:
+#   useAPIServer: true
+#   apiserver:
+#     tls:
+#       auto:
+#         enabled: true
+#         method: cronJob
+#     service:
+#       type: LoadBalancer
+#   config:
+#     enabled: true
+#     domain: mesh.cilium.io
     # clusters:
     # - name: cluster-a
     #   address: 172.19.0.100

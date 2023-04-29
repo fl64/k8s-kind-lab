@@ -14,3 +14,9 @@ clustermesh:
 operator:
   securityContext:
     privileged: false
+
+externalWorkloads:
+  enabled: true
+
+loadBalancer:
+  mode: hybrid

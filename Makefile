@@ -4,12 +4,12 @@ CONTEXT=kind-$(CLUSTER_NAME)
 KIND_VER:=0.16.0
 METALLB_VER:=0.13.5
 # CILIUM_VER:=1.11.5
-CILIUM_VER:=1.12.4
+CILIUM_VER:=1.12.7
 #CILIUM_VER:=1.11.6
 
 ISTIO_VERSION:=1.16.1
 # https://github.com/cilium/cilium-cli/commit/1c7c537aa2cb533f45d3e5917a53b27025c511c1
-CILIUM_CLI_VER:=0.12.5
+CILIUM_CLI_VER:=0.13.1
 INGRESS_NGINX_CHART_VER:=4.3.0
 CERTMANAGER_VER:=1.10.0
 
@@ -130,7 +130,7 @@ install-certmanager: cluster-context ## install cert-manager for $(CLUSTER_NAME)
    --namespace cert-manager-system \
 	 --set installCRDs=true
 
-install: cluster install-cilium install-metallb install-ingress ## install all for $(CLUSTER_NAME)
+install: init-helm cluster install-cilium install-metallb install-ingress ## install all for $(CLUSTER_NAME)
 
 # istio
 
