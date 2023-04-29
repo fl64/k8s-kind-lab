@@ -1,0 +1,23 @@
+debug:
+  enabled: true
+
+operator:
+  replicas: 1
+#   securityContext:
+#     privileged: false
+
+# cluster:
+#   name: dev0
+#   id: 1
+
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+    ingress:
+      enabled: true
+      className: "nginx"
+      hosts:
+        - hubble.dev0.com

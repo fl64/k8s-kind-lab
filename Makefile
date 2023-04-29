@@ -3,13 +3,13 @@ CONTEXT=kind-$(CLUSTER_NAME)
 
 KIND_VER:=0.16.0
 METALLB_VER:=0.13.5
-CILIUM_VER:=1.12.7
+CILIUM_VER:=1.13.2
 
-ISTIO_VERSION:=1.16.1
+ISTIO_VERSION:=1.17.2
 # https://github.com/cilium/cilium-cli/commit/1c7c537aa2cb533f45d3e5917a53b27025c511c1
-CILIUM_CLI_VER:=0.13.1
-INGRESS_NGINX_CHART_VER:=4.3.0
-CERTMANAGER_VER:=1.10.0
+CILIUM_CLI_VER:=1.13.2
+INGRESS_NGINX_CHART_VER:=4.6.0
+CERTMANAGER_VER:=1.11.1
 
 # https://kubernetes.io/releases/
 # https://docs.cilium.io/en/v1.12/concepts/kubernetes/compatibility/
@@ -77,7 +77,7 @@ init: init-helm init-sysctl init-kind init-cilium init-hubble ## init all
 
 # install section ==============================================================
 
-cluster: ## create cluster $(CLUSTER_NAME) with kind
+kind: ## create cluster $(CLUSTER_NAME) with kind
 	$(call msg_red,Create cluster $(CLUSTER_NAME) with k8s version v$(K8S_VER))
 	@kind create cluster --image=kindest/node:v$(K8S_VER) --name $(CLUSTER_NAME) --config k8s/$(CLUSTER_NAME)/kind/cluster.yaml
 
@@ -99,9 +99,11 @@ install-cilium: pre-install-cilium ## pull cilium images and install cilium char
 		--version $(CILIUM_VER) \
 		--create-namespace \
 		--namespace cilium-system \
-		--values k8s/common/helm/cilium-values.yaml \
 		--values k8s/$(CLUSTER_NAME)/helm/cilium-values.yaml
 	@kubectl --context $(CONTEXT)  wait pod -n cilium-system --for=condition=ready --timeout=10m -l k8s-app=cilium
+
+check-cilium:
+	@helm search repo cilium/cilium
 
 install-metallb: ## install metallb for $(CLUSTER_NAME)
 	$(call msg_green,Install metallb to $(CLUSTER_NAME))
@@ -122,6 +124,9 @@ install-ingress: ## install ingress-nginx for $(CLUSTER_NAME)
 	@echo ingress ip:
 	@kubectl --context $(CONTEXT) get svc -n ingress-nginx-system nginx-ingress-ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].ip -r
 
+check-ingress:
+	@helm search repo ingress-nginx/ingress-nginx
+
 # https://cert-manager.io/docs/installation/helm/#steps
 install-certmanager: ## install cert-manager for $(CLUSTER_NAME)
 	$(call msg_green,Install cert-manager to $(CLUSTER_NAME))
@@ -134,7 +139,12 @@ install-certmanager: ## install cert-manager for $(CLUSTER_NAME)
 		--namespace cert-manager-system \
 		--set installCRDs=true
 
-install: init-helm cluster install-cilium install-metallb install-ingress ## install all for $(CLUSTER_NAME)
+check-certmanager:
+	@helm search repo jetstack/cert-manager
+
+install: init-helm kind install-cilium install-metallb install-ingress ## install all for $(CLUSTER_NAME)
+
+check: check-certmanager check-cilium check-ingress
 
 # istio
 
@@ -149,7 +159,8 @@ install-istio-operator: init-istio cluster-context ## install cert-manager for $
 
 install-istio-iop:
 	$(call msg_green,Install iop resource $(CLUSTER_NAME))
-	kubectl --context $(CONTEXT) \ apply -f k8s/$(CLUSTER_NAME)/istio-operator.yaml
+	kubectl --context $(CONTEXT) \
+		apply -f k8s/$(CLUSTER_NAME)/istio-operator.yaml
 
 install-istio-tools:
 	$(call msg_green,Install istio tools to $(CLUSTER_NAME))
