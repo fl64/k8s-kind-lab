@@ -144,6 +144,8 @@ check-certmanager:
 
 install: init-helm kind install-cilium install-metallb install-ingress ## install all for $(CLUSTER_NAME)
 
+cluster: install
+
 check: check-certmanager check-cilium check-ingress
 
 # istio
@@ -224,3 +226,15 @@ cilium-client-certs:
 
 hubble-port-forward:
 	cilium --context $(CONTEXT) -n cilium-system hubble port-forward&
+
+# tests ========================================================================
+
+TEST:=00-sts
+deploy-test:
+	kubectl --context=$(CONTEXT) apply -k tests/$(TEST)/
+
+run-test:
+	./tests/$(TEST)/do.sh
+
+undeploy-test:
+	kubectl --context=$(CONTEXT) delete -k tests/$(TEST)/
