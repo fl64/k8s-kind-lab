@@ -1,9 +1,0 @@
-cluster:
-  name: dev0
-  id: 1
-
-hubble:
-  ui:
-    ingress:
-      hosts:
-        - hubble.dev0.com
