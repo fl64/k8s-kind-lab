@@ -79,7 +79,7 @@ init: init-helm init-sysctl init-kind init-cilium init-hubble ## init all
 
 kind: ## create cluster $(CLUSTER_NAME) with kind
 	$(call msg_red,Create cluster $(CLUSTER_NAME) with k8s version v$(K8S_VER))
-	@kind create cluster --image=kindest/node:v$(K8S_VER) --name $(CLUSTER_NAME) --config k8s/$(CLUSTER_NAME)/kind/cluster.yaml
+	@kind -v 10 create cluster --image=kindest/node:v$(K8S_VER) --name $(CLUSTER_NAME) --config k8s/$(CLUSTER_NAME)/kind/cluster.yaml
 
 cluster-context:
 	@kubectl config use-context $(CONTEXT) > /dev/null
@@ -101,6 +101,12 @@ install-cilium: pre-install-cilium ## pull cilium images and install cilium char
 		--namespace cilium-system \
 		--values k8s/$(CLUSTER_NAME)/helm/cilium-values.yaml
 	@kubectl --context $(CONTEXT)  wait pod -n cilium-system --for=condition=ready --timeout=10m -l k8s-app=cilium
+
+uninstall-cilium:
+	helm uninstall \
+		--kube-context $(CONTEXT) \
+	 	-n cilium-system cilium
+
 
 check-cilium:
 	@helm search repo cilium/cilium
