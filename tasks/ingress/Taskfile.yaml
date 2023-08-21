@@ -1,6 +1,6 @@
 # https://taskfile.dev
 
-version: '3'
+version: "3"
 
 vars:
   INGRESS_NGINX_CHART_VER: 4.7.1
@@ -15,14 +15,14 @@ tasks:
       - helm search repo ingress-nginx/ingress-nginx
   install:
     deps:
-    - init
+      - init
     cmds:
       - |
-          helm upgrade \
-              --kube-context {{ .CONTEXT }} \
-              --install nginx-ingress ingress-nginx/ingress-nginx \
-              --version {{ .INGRESS_NGINX_CHART_VER }} \
-              --create-namespace \
-              --namespace ingress-nginx-system
+        helm upgrade \
+            --kube-context {{ .CONTEXT }} \
+            --install nginx-ingress ingress-nginx/ingress-nginx \
+            --version {{ .INGRESS_NGINX_CHART_VER }} \
+            --create-namespace \
+            --namespace ingress-nginx-system
       - kubectl --context {{ .CONTEXT }} wait pod -n ingress-nginx-system --for=condition=ready --timeout=10m -l app.kubernetes.io/component=controller
       - kubectl --context {{ .CONTEXT }} get svc -n ingress-nginx-system nginx-ingress-ingress-nginx-controller -o json | jq .status.loadBalancer.ingress[0].ip -r

@@ -1,6 +1,6 @@
 # https://taskfile.dev
 
-version: '3'
+version: "3"
 
 vars:
   CILIUM_VER: 1.14.1
@@ -18,24 +18,24 @@ tasks:
       - kind load docker-image quay.io/cilium/cilium:v{{ .CILIUM_VER }} -n {{ .CLUSTER_NAME }}
   install:
     deps:
-    - prep
+      - prep
     cmds:
       - |
-          helm upgrade \
-          --kube-context {{ .CONTEXT }} \
-          --install cilium cilium/cilium \
-          --version {{ .CILIUM_VER }} \
-          --create-namespace \
-          --namespace cilium-system \
-          --values k8s/{{ .CLUSTER_NAME }}/helm/cilium-values.yaml
+        helm upgrade \
+        --kube-context {{ .CONTEXT }} \
+        --install cilium cilium/cilium \
+        --version {{ .CILIUM_VER }} \
+        --create-namespace \
+        --namespace cilium-system \
+        --values k8s/{{ .CLUSTER_NAME }}/helm/cilium-values.yaml
       - kubectl --context {{ .CONTEXT }} wait pod -n cilium-system --for=condition=ready --timeout=10m -l k8s-app=cilium
 
   uninstall:
     cmds:
-    - |
+      - |
         helm uninstall \
         --kube-context {{ .CONTEXT }} \
         -n cilium-system cilium
   hubble:
     cmds:
-    - cilium --context {{ .CONTEXT }} -n cilium-system hubble port-forward&
+      - cilium --context {{ .CONTEXT }} -n cilium-system hubble port-forward&

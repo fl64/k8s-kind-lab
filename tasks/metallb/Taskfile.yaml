@@ -1,6 +1,6 @@
 # https://taskfile.dev
 
-version: '3'
+version: "3"
 
 vars:
   METALLB_VER: 0.13.10
@@ -12,15 +12,15 @@ tasks:
       - helm repo update cilium
   install:
     deps:
-    - init
+      - init
     cmds:
       - |
-          kubectl --context {{ .CONTEXT }} apply -f https://raw.githubusercontent.com/metallb/metallb/v{{ .METALLB_VER }}/config/manifests/metallb-native.yaml
-          kubectl --context {{ .CONTEXT }} wait pod -n metallb-system --for=condition=ready --timeout=10m -l app=metallb
-          docker network inspect -f '{{.IPAM.Config}}' kind
-          kubectl --context {{ .CONTEXT }} apply -f k8s/{{ .CLUSTER_NAME }}/metallb.yaml
+        kubectl --context {{ .CONTEXT }} apply -f https://raw.githubusercontent.com/metallb/metallb/v{{ .METALLB_VER }}/config/manifests/metallb-native.yaml
+        kubectl --context {{ .CONTEXT }} wait pod -n metallb-system --for=condition=ready --timeout=10m -l app=metallb
+        docker network inspect -f '{{.IPAM.Config}}' kind
+        kubectl --context {{ .CONTEXT }} apply -f k8s/{{ .CLUSTER_NAME }}/metallb.yaml
   uninstall:
     cmds:
       - |
-          kubectl --context {{ .CONTEXT }} delete -f k8s/{{ .CLUSTER_NAME }}/metallb.yaml
-          kubectl --context {{ .CONTEXT }} delete -f https://raw.githubusercontent.com/metallb/metallb/v{{ .METALLB_VER }}/config/manifests/metallb-native.yaml
+        kubectl --context {{ .CONTEXT }} delete -f k8s/{{ .CLUSTER_NAME }}/metallb.yaml
+        kubectl --context {{ .CONTEXT }} delete -f https://raw.githubusercontent.com/metallb/metallb/v{{ .METALLB_VER }}/config/manifests/metallb-native.yaml
