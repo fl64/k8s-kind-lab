@@ -1,0 +1,40 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  kind:
+    desc: Install latest version of kind
+    vars:
+      KIND_VER:
+        sh: curl -s https://api.github.com/repos/kubernetes-sigs/kind/releases | jq '[.[].tag_name | select(.|test("rc|alpha")|not)] | first' -r
+    cmds:
+      - sudo curl -Lsqo ./kind https://kind.sigs.k8s.io/dl/{{ .KIND_VER }}/kind-linux-amd64 -o /usr/local/bin/kind
+      - chmod +x /usr/local/bin/kind
+  sysctl:
+    desc: Tune inotify (solves problem "too many opened files")
+    cmds:
+      - sudo sysctl fs.inotify.max_user_instances=512
+      - sudo sysctl fs.inotify.max_user_watches=2097152
+  cilium-cli:
+    desc: Install latest version of cilium cli
+    vars:
+      CILIUM_CLI_VER:
+        sh: curl -s https://api.github.com/repos/cilium/cilium-cli/releases | jq '[.[].tag_name | select(.|test("rc|alpha")|not)]|first' -r
+    cmds:
+      - sudo bash -c "curl -Lsq https://github.com/cilium/cilium-cli/releases/download/{{ .CILIUM_CLI_VER }}/cilium-linux-amd64.tar.gz | tar -xz -C /usr/local/bin/"
+  hubble:
+    desc: Install latest version of hubble cli
+    vars:
+      HUBBLE_VERSION:
+        sh: curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt
+    cmds:
+      - echo {{ .HUBBLE_VERSION }}
+      - sudo bash -c "curl -Lsq https://github.com/cilium/hubble/releases/download/{{ .HUBBLE_VERSION }}/hubble-linux-amd64.tar.gz | tar -xz -C /usr/local/bin/"
+  run:
+    desc: Init
+    deps:
+      - kind
+      - sysctl
+      - cilium-cli
+      - hubble

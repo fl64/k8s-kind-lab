@@ -1,0 +1,29 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  CLUSTER_NAME: dev0
+  CONTEXT: kind-{{.CLUSTER_NAME}}
+  KINDEST_VER: v1.27.3@sha256:3966ac761ae0136263ffdb6cfd4db23ef8a83cba8a463690e98317add2c9ba72
+
+
+includes:
+  init: ./tasks/init/Taskfile.yaml
+  kind: ./tasks/kind/Taskfile.yaml
+  cilium: ./tasks/cilium/Taskfile.yaml
+  metallb: ./tasks/metallb/Taskfile.yaml
+  ingress: ./tasks/ingress/Taskfile.yaml
+  cert-manager: ./tasks/cert-manager/Taskfile.yaml
+
+tasks:
+  create:
+    cmds:
+      - task: kind:create
+      - task: cilium:install
+      - task: metallb:install
+      - task: ingress:install
+      - task: cert-manager:install
+  destroy:
+    cmds:
+      - task: kind:delete

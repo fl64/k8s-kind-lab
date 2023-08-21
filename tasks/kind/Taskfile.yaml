@@ -1,0 +1,13 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  create:
+    desc: Setup {{ .CLUSTER_NAME }} kind cluster
+    cmds:
+      - kind -v 10 create cluster --image=kindest/node:{{ .KINDEST_VER }} --name {{ .CLUSTER_NAME }} --config k8s/{{ .CLUSTER_NAME }}/kind/cluster.yaml
+  delete:
+    desc: Delete {{ .CLUSTER_NAME }} kind cluster
+    cmds:
+      - kind delete cluster -n {{ .CLUSTER_NAME }}
