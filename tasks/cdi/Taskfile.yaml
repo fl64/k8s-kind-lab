@@ -1,0 +1,15 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  CDI_VER: v1.57.0
+
+tasks:
+  check:
+    cmds:
+    - curl -s https://api.github.com/repos/kubevirt/containerized-data-importer/releases | jq '.[].tag_name | select(.|test("rc|alpha|beta")|not)' -r | sort -r | head -1
+  install:
+    cmds:
+    - kubectl --context {{ .CONTEXT }} apply -f  https://github.com/kubevirt/containerized-data-importer/releases/download/{{ .CDI_VER }}/cdi-operator.yaml
+    - kubectl --context {{ .CONTEXT }}  apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/{{ .CDI_VER }}/cdi-cr.yaml

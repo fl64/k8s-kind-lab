@@ -3,11 +3,19 @@
 version: "3"
 
 tasks:
+  virtctl:
+    desc: Install latest version of virtctl
+    vars:
+      VIRTCTL_VER:
+        sh: curl -s https://api.github.com/repos/kubevirt/kubevirt/releases | jq '.[].tag_name | select(.|test("rc|alpha|beta")|not)' -r | sort -r | head -1
+    cmds:
+      - sudo curl -Lsqo ./virtctl https://github.com/kubevirt/kubevirt/releases/download/{{ .VIRTCTL_VER }}/virtctl-{{ .VIRTCTL_VER }}-x86_64 -o /usr/local/bin/virtctl
+      - sudo chmod +x /usr/local/bin/virtctl
   kind:
     desc: Install latest version of kind
     vars:
       KIND_VER:
-        sh: curl -s https://api.github.com/repos/kubernetes-sigs/kind/releases | jq '[.[].tag_name | select(.|test("rc|alpha")|not)] | first' -r
+        sh: curl -s https://api.github.com/repos/kubernetes-sigs/kind/releases | jq '.[].tag_name | select(.|test("rc|alpha|beta")|not)' -r | sort -r | head -1
     cmds:
       - sudo curl -Lsqo ./kind https://kind.sigs.k8s.io/dl/{{ .KIND_VER }}/kind-linux-amd64 -o /usr/local/bin/kind
       - chmod +x /usr/local/bin/kind
@@ -20,7 +28,7 @@ tasks:
     desc: Install latest version of cilium cli
     vars:
       CILIUM_CLI_VER:
-        sh: curl -s https://api.github.com/repos/cilium/cilium-cli/releases | jq '[.[].tag_name | select(.|test("rc|alpha")|not)]|first' -r
+        sh: curl -s https://api.github.com/repos/cilium/cilium-cli/releases | jq '.[].tag_name | select(.|test("rc|alpha|beta")|not)' -r | sort -r | head -1
     cmds:
       - sudo bash -c "curl -Lsq https://github.com/cilium/cilium-cli/releases/download/{{ .CILIUM_CLI_VER }}/cilium-linux-amd64.tar.gz | tar -xz -C /usr/local/bin/"
   hubble:
@@ -38,3 +46,4 @@ tasks:
       - sysctl
       - cilium-cli
       - hubble
+      - virtctl

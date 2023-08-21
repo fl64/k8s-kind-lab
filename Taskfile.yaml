@@ -14,15 +14,23 @@ includes:
   metallb: ./tasks/metallb/Taskfile.yaml
   ingress: ./tasks/ingress/Taskfile.yaml
   cert-manager: ./tasks/cert-manager/Taskfile.yaml
+  kubevirt: ./tasks/kubevirt/Taskfile.yaml
+  cdi: ./tasks/cdi/Taskfile.yaml
 
 tasks:
   create:
     cmds:
       - task: kind:create
       - task: cilium:install
+  misc:
+    cmds:
       - task: metallb:install
       - task: ingress:install
       - task: cert-manager:install
+  virt:
+    cmds:
+      - task: kubevirt:install
+      - task: cdi:install
   destroy:
     cmds:
       - task: kind:delete

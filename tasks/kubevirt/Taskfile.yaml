@@ -1,0 +1,16 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  KUBEVIRT_VER: v1.0.0
+
+tasks:
+  check:
+    cmds:
+    - curl -s https://api.github.com/repos/kubevirt/kubevirt/releases | jq '.[].tag_name | select(.|test("rc|alpha|beta")|not)' -r | sort -r | head -1
+  install:
+    cmds:
+    - kubectl --context {{ .CONTEXT }} apply -f https://github.com/kubevirt/kubevirt/releases/download/{{ .KUBEVIRT_VER }}/kubevirt-operator.yaml
+    - kubectl --context {{ .CONTEXT }}  apply -f https://github.com/kubevirt/kubevirt/releases/download/{{ .KUBEVIRT_VER }}/kubevirt-cr.yaml
+    - kubectl --context {{ .CONTEXT }}  -n kubevirt patch kubevirt kubevirt --type=merge --patch '{"spec":{"configuration":{"developerConfiguration":{"useEmulation":true}}}}'
