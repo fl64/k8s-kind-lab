@@ -1,37 +1,37 @@
 debug:
   enabled: false
 
-#kubeProxyReplacement: "strict"
-tunnel: disabled
-ipv4NativeRoutingCIDR: "10.1.0.0/16"
-enableIPv4Masquerade: true
-loadBalancer:
-  mode: SNAT
-  algorithm: random
-  l7:
-    backend: envoy
-hostServices:
-  enabled: true
-externalIPs:
-  enabled: true
-nodePort:
-  enabled: true
-hostPort:
-  enabled: true
-socketLB:
-  enabled: true
-  hostNamespaceOnly: true
+# #kubeProxyReplacement: "strict"
+# tunnel: disabled
+# ipv4NativeRoutingCIDR: "10.1.0.0/16"
+# enableIPv4Masquerade: true
+# loadBalancer:
+#   mode: SNAT
+#   algorithm: random
+#   l7:
+#     backend: envoy
+# hostServices:
+#   enabled: true
+# externalIPs:
+#   enabled: true
+# nodePort:
+#   enabled: true
+# hostPort:
+#   enabled: true
+# socketLB:
+#   enabled: true
+#   hostNamespaceOnly: true
 
-enableIPv4Masquerade: true
+# enableIPv4Masquerade: true
 
-ipam:
-  ipv4:
-    enabled: true
+# ipam:
+#   ipv4:
+#     enabled: true
 
-bpf:
-  lbExternalClusterIP: true
-  masquerade: true
-  tproxy: true
+# bpf:
+#   lbExternalClusterIP: true
+#   masquerade: true
+#   tproxy: true
 
 enableCiliumEndpointSlice: true
 
